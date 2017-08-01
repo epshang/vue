@@ -4,6 +4,7 @@ import Vue from 'vue'
 import Layout from './components/layout'
 import VueRouter from 'vue-router'
 import IndexPage from './pages/index'
+//import Hello from './components/Hello'
 Vue.use(VueRouter)
 let router = new VueRouter({
 	mode: 'history',
