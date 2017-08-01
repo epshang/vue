@@ -63,6 +63,17 @@ app.use(hotMiddleware)
 var staticPath = path.posix.join(config.dev.assetsPublicPath, config.dev.assetsSubDirectory)
 app.use(staticPath, express.static('./static'))
 
+const jsonServer = require('json-server')
+const apiServer = jsonServer.create()
+const apiRouter = jsonServer.router('db.json')
+const middlewares = jsonServer.defaults()
+
+apiServer.use(middlewares)
+apiServer.use('/api', apiRouter)
+apiServer.listen(port + 1, () => {
+  console.log('JSON Server is running')
+})
+
 var uri = 'http://localhost:' + port
 
 var _resolve
@@ -80,7 +91,7 @@ devMiddleware.waitUntilValid(() => {
   _resolve()
 })
 
-var server = app.listen(port)
+var server  = app.listen(port)
 
 module.exports = {
   ready: readyPromise,
