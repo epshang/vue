@@ -42,10 +42,11 @@
 <script>
 export default {
   created: function () {
-    this.$http.get('getList')
-    .then(function (data) {
-      console.log(data);
-    },function (err) {
+    this.$http.get('api/getNewsList')
+    .then((res) => {
+      console.log(res);
+      this.newsList = res.data;
+    }, (err) => {
       console.log(err)
     })
   },
