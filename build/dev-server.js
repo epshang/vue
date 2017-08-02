@@ -63,39 +63,81 @@ app.use(hotMiddleware)
 var staticPath = path.posix.join(config.dev.assetsPublicPath, config.dev.assetsSubDirectory)
 app.use(staticPath, express.static('./static'))
 
-const jsonServer = require('json-server')
-const apiServer = jsonServer.create()
-const apiRouter = jsonServer.router('db.json')
-const middlewares = jsonServer.defaults()
+//下面这段只支持get请求
+// const jsonServer = require('json-server')
+// const apiServer = jsonServer.create()
+// const apiRouter = jsonServer.router('db.json')
+// const middlewares = jsonServer.defaults()
 
-apiServer.use(middlewares)
-apiServer.use('/api', apiRouter)
-apiServer.listen(port + 1, () => {
-  console.log('JSON Server is running')
+// apiServer.use(middlewares)
+// apiServer.use('/api', apiRouter)
+// apiServer.listen(port + 1, () => {
+//   console.log('JSON Server is running')
+// })
+
+// var uri = 'http://localhost:' + port
+
+// var _resolve
+// var readyPromise = new Promise(resolve => {
+//   _resolve = resolve
+// })
+
+// console.log('> Starting dev server...')
+// devMiddleware.waitUntilValid(() => {
+//   console.log('> Listening at ' + uri + '\n')
+//   // when env is testing, don't need open it
+//   if (autoOpenBrowser && process.env.NODE_ENV !== 'testing') {
+//     opn(uri)
+//   }
+//   _resolve()
+// })
+
+// var server  = app.listen(port)
+
+// module.exports = {
+//   ready: readyPromise,
+//   close: () => {
+//     server.close()
+//   }
+// }
+
+var apiServer = express()
+var bodyParser = require('body-parser')
+apiServer.use(bodyParser.urlencoded({ extended: true }))
+apiServer.use(bodyParser.json())
+var apiRouter = express.Router()
+var fs = require('fs')
+apiRouter.route('/:apiName')
+.all(function (req, res) {
+  fs.readFile('./db.json', 'utf8', function (err, data) {
+    if (err) throw err
+    var data = JSON.parse(data)
+    if (data[req.params.apiName]) {
+      res.json(data[req.params.apiName])  
+    }
+    else {
+      res.send('no such api name')
+    }
+    
+  })
 })
 
-var uri = 'http://localhost:' + port
 
-var _resolve
-var readyPromise = new Promise(resolve => {
-  _resolve = resolve
-})
-
-console.log('> Starting dev server...')
-devMiddleware.waitUntilValid(() => {
-  console.log('> Listening at ' + uri + '\n')
-  // when env is testing, don't need open it
-  if (autoOpenBrowser && process.env.NODE_ENV !== 'testing') {
-    opn(uri)
+apiServer.use('/api', apiRouter);
+apiServer.listen(port + 1, function (err) {
+  if (err) {
+    console.log(err)
+    return
   }
-  _resolve()
+  console.log('Listening at http://localhost:' + (port + 1) + '\n')
 })
 
-var server  = app.listen(port)
-
-module.exports = {
-  ready: readyPromise,
-  close: () => {
-    server.close()
+module.exports = app.listen(port, function (err) {
+  if (err) {
+    console.log(err)
+    return
   }
-}
+  var uri = 'http://localhost:' + port
+  console.log('Listening at ' + uri + '\n')
+  opn(uri)
+})
